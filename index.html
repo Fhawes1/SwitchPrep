@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="SwitchPrep: free practice for switch-style logical reasoning tests used in graduate applications.">
+<style>*,*::before,*::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>SwitchPrep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one centred test console — status bar, the switch rig (input → switch → output), four answer keys. */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --ink:#18212b; --muted:#5b6876; --line:#d3dae2;
+  --accent:#0b62c4; --accent-ink:#ffffff; --good:#1c8a4a; --bad:#c43b2f; --hidden:#e3e8ee;
+  --s1:#d6452f; --s2:#1f7ad1; --s3:#e0a100; --s4:#2b9b5c; --s5:#7b49c9; --s6:#1a1f26;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Work Sans",Arial,Helvetica,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --panel:#1a2129; --ink:#e7edf3; --muted:#9aa7b4; --line:#2c3642;
+  --accent:#5aa6ff; --accent-ink:#0b1420; --good:#4cc47f; --bad:#ff7a6c; --hidden:#242d37;
+  --s1:#ff6a52; --s2:#5aa6ff; --s3:#ffc531; --s4:#4cc47f; --s5:#b28cff; --s6:#e7edf3; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --panel:#1a2129; --ink:#e7edf3; --muted:#9aa7b4; --line:#2c3642;
+  --accent:#5aa6ff; --accent-ink:#0b1420; --good:#4cc47f; --bad:#ff7a6c; --hidden:#242d37;
+  --s1:#ff6a52; --s2:#5aa6ff; --s3:#ffc531; --s4:#4cc47f; --s5:#b28cff; --s6:#e7edf3; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header h1{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:none;color:var(--muted);font:600 .85rem var(--body);padding:8px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg button:focus-visible,.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 .9rem var(--body);padding:9px 16px;border-radius:8px;cursor:pointer}
+.btn.ghost{background:none;color:var(--accent)}
+.label{font:600 .72rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+
+.console{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:18px}
+.status{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-variant-numeric:tabular-nums}
+.stat{display:flex;flex-direction:column}
+.stat b{font:700 1.5rem var(--mono)}
+.stat b.warn{color:var(--bad)}
+
+.rig{display:flex;flex-direction:column;align-items:center;gap:8px}
+.row{display:flex;gap:10px;align-items:center}
+.row .tag{width:58px;text-align:right;font:600 .7rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.cells{display:flex;gap:8px}
+.cell{width:52px;height:52px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;background:var(--bg)}
+.cell.hid{background:var(--hidden);font:700 1.2rem var(--mono);color:var(--muted)}
+.cell svg{width:34px;height:34px}
+.arrow{color:var(--muted);font-size:1rem;line-height:1}
+.switch{display:flex;align-items:center;gap:10px}
+.switch .box{border:2px solid var(--ink);border-radius:8px;padding:6px 14px;font:700 1.25rem var(--mono);letter-spacing:.35em;min-width:140px;text-align:center}
+.switch .box.unknown{border-style:dashed;border-color:var(--accent);color:var(--accent)}
+
+.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.opt{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:12px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.opt .k{font:600 .7rem var(--body);color:var(--muted)}
+.opt .c{font:700 1.35rem var(--mono);letter-spacing:.12em}
+.opt:hover{border-color:var(--accent)}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--panel))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--panel))}
+.opt:disabled{cursor:default}
+
+.feedback{min-height:1.5em;font-size:.95rem}
+.feedback .ok{color:var(--good);font-weight:600}
+.feedback .no{color:var(--bad);font-weight:600}
+.feedback code{font-family:var(--mono);font-weight:700}
+.next{display:flex;justify-content:flex-end}
+
+.results{display:flex;flex-direction:column;gap:12px}
+.results h2{font-family:var(--display);font-size:1.7rem;margin:0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.tile{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-variant-numeric:tabular-nums}
+.tile b{display:block;font:700 1.6rem var(--mono)}
+.how{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.how h2{font-family:var(--display);font-size:1.3rem;margin:0 0 6px}
+.how ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px;max-width:65ch}
+@media (max-width:520px){
+  .cell{width:42px;height:42px}.cell svg{width:28px;height:28px}
+  .row .tag{width:44px}.opts{grid-template-columns:repeat(2,1fr)}
+  .switch .box{min-width:110px;font-size:1.05rem}
+}
+.disclaimer{margin:0;color:var(--muted);font-size:.82rem;max-width:65ch}
+@media (prefers-reduced-motion:no-preference){.opt{transition:border-color .15s,background .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>SwitchPrep</h1>
+    <p>Free practice for switch-style logical reasoning tests, like those used in many graduate applications. Work out which 4-digit code turns the input row into the output row. Each digit says which input position fills that output slot.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Mode">
+      <button id="m-practice" aria-pressed="true">Practice</button>
+      <button id="m-timed" aria-pressed="false">Timed test (6 min)</button>
+    </div>
+    <div class="seg" role="group" aria-label="Difficulty">
+      <button id="d-1" aria-pressed="false">One switch</button>
+      <button id="d-2" aria-pressed="false">Two switches</button>
+      <button id="d-m" aria-pressed="true">Mixed</button>
+    </div>
+    <button class="btn" id="start">Restart</button>
+  </div>
+
+  <section class="console" id="game" aria-live="polite">
+    <div class="status">
+      <div class="stat"><span class="label">Time</span><b id="time">--:--</b></div>
+      <div class="stat"><span class="label">Correct</span><b id="correct">0</b></div>
+      <div class="stat"><span class="label">Wrong</span><b id="wrong">0</b></div>
+      <div class="stat"><span class="label">Best (timed)</span><b id="best">–</b></div>
+    </div>
+    <div class="rig" id="rig"></div>
+    <div class="opts" id="opts"></div>
+    <div class="feedback" id="feedback">Pick the code. Keys 1–4 also work.</div>
+    <div class="next"><button class="btn ghost" id="nextBtn" hidden>Next question (Enter)</button></div>
+  </section>
+
+  <section class="console results" id="results" hidden>
+    <h2>Time's up</h2>
+    <div class="grid3">
+      <div class="tile"><span class="label">Correct</span><b id="r-correct">0</b></div>
+      <div class="tile"><span class="label">Wrong</span><b id="r-wrong">0</b></div>
+      <div class="tile"><span class="label">Accuracy</span><b id="r-acc">0%</b></div>
+      <div class="tile"><span class="label">Avg per question</span><b id="r-avg">0s</b></div>
+    </div>
+    <p id="r-note" class="label" style="text-transform:none;letter-spacing:0;font-size:.9rem"></p>
+    <div><button class="btn" id="again">Try again</button></div>
+  </section>
+
+  <section class="how">
+    <h2>How to solve it fast</h2>
+    <ol>
+      <li>Take the first output symbol and find where it sits in the input. That number is the first digit.</li>
+      <li>Rule out any option that doesn't start with that digit. Often only one is left.</li>
+      <li>Two switches: apply the known switch to get the hidden middle row (or undo it if it comes second), then solve the other switch as normal.</li>
+      <li>In the timed test, don't stall. If a question takes over 20 seconds, pick your best answer and move on.</li>
+    </ol>
+  </section>
+
+  <p class="disclaimer">SwitchPrep is an independent practice tool. It is not affiliated with, endorsed by or connected to Aon or any employer, and its questions are randomly generated, not taken from any real test.</p>
+</div>
+
+<script>
+(function(){
+  const SHAPES=['circle','square','triangle','diamond','star','cross'];
+  const COLORS=['var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)','var(--s6)'];
+  function svg(sym){
+    const c=COLORS[sym.c], s=sym.s;
+    let inner='';
+    if(s==='circle') inner=`<circle cx="20" cy="20" r="14" fill="${c}"/>`;
+    else if(s==='square') inner=`<rect x="7" y="7" width="26" height="26" rx="3" fill="${c}"/>`;
+    else if(s==='triangle') inner=`<polygon points="20,5 35,33 5,33" fill="${c}"/>`;
+    else if(s==='diamond') inner=`<polygon points="20,4 36,20 20,36 4,20" fill="${c}"/>`;
+    else if(s==='star') inner=`<polygon points="20,4 24.7,15 36,15.5 27,23 30,34.5 20,28 10,34.5 13,23 4,15.5 15.3,15" fill="${c}"/>`;
+    else inner=`<path d="M15 5h10v10h10v10H25v10H15V25H5V15h10z" fill="${c}"/>`;
+    return `<svg viewBox="0 0 40 40" aria-hidden="true">${inner}</svg>`;
+  }
+  const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  const perms=(()=>{const out=[];const p=(arr,rest)=>{if(!rest.length){out.push(arr);return}rest.forEach((x,i)=>p(arr.concat(x),rest.filter((_,k)=>k!==i)))};p([],[1,2,3,4]);return out})();
+  const apply=(code,row)=>code.map(d=>row[d-1]);
+  const same=(a,b)=>a.every((x,i)=>x===b[i]);
+  const name=sym=>sym.s;
+
+  const state={mode:'practice',diff:'mixed',correct:0,wrong:0,q:null,answered:false,timer:null,endAt:0,startedAt:0,answeredCount:0};
+  const $=id=>document.getElementById(id);
+
+  let best=null; try{best=JSON.parse(localStorage.getItem('switchBest')||'null')}catch(e){}
+  function showBest(){$('best').textContent=best?best:'–'}
+
+  function makeSymbols(){
+    const shapes=shuffle(SHAPES).slice(0,4), cols=shuffle([0,1,2,3,4,5]);
+    return shapes.map((s,i)=>({s,c:cols[i],id:i}));
+  }
+  function newQuestion(){
+    const two = state.diff==='two' || (state.diff==='mixed' && Math.random()<0.45);
+    const input=makeSymbols();
+    let A=perms[Math.floor(Math.random()*24)], B=null, unknown='A', mid=null, output;
+    if(two){
+      do{B=perms[Math.floor(Math.random()*24)]}while(same(B,[1,2,3,4]));
+      while(same(A,[1,2,3,4]))A=perms[Math.floor(Math.random()*24)];
+      mid=apply(A,input); output=apply(B,mid); unknown=Math.random()<0.5?'A':'B';
+    } else {
+      while(same(A,[1,2,3,4]))A=perms[Math.floor(Math.random()*24)];
+      output=apply(A,input);
+    }
+    const answer = unknown==='A'?A:B;
+    // distractors: favour ones sharing a digit position so elimination is needed
+    const pool=shuffle(perms.filter(p=>!same(p,answer)));
+    pool.sort((p,q)=>(q.filter((d,i)=>d===answer[i]).length)-(p.filter((d,i)=>d===answer[i]).length));
+    const picks=shuffle(pool.slice(0,8)).slice(0,3);
+    const options=shuffle([answer,...picks]);
+    state.q={two,input,A,B,mid,output,unknown,answer,options,shownAt:performance.now()};
+    state.answered=false;
+    render();
+  }
+  function cells(row,hidden){
+    return `<div class="cells">${row.map(s=>hidden?`<div class="cell hid">?</div>`:`<div class="cell" title="${name(s)}">${svg(s)}</div>`).join('')}</div>`;
+  }
+  function sw(code,isUnknown){
+    return `<div class="switch"><span class="arrow">↓</span><div class="box ${isUnknown?'unknown':''}">${isUnknown?'????':code.join('')}</div><span class="arrow">↓</span></div>`;
+  }
+  function render(){
+    const q=state.q;
+    let h=`<div class="row"><span class="tag">Input</span>${cells(q.input)}</div>`;
+    if(q.two){
+      h+=sw(q.A,q.unknown==='A');
+      h+=`<div class="row"><span class="tag">Middle</span>${cells(q.mid,!state.answered||state.mode!=='practice')}</div>`;
+      h+=sw(q.B,q.unknown==='B');
+    } else h+=sw(q.A,true);
+    h+=`<div class="row"><span class="tag">Output</span>${cells(q.output)}</div>`;
+    $('rig').innerHTML=h;
+    $('opts').innerHTML=q.options.map((o,i)=>`<button class="opt" id="opt-${i}" data-i="${i}"><span class="k">${i+1}</span><span class="c">${o.join('')}</span></button>`).join('');
+    $('opts').querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>choose(+b.dataset.i)));
+    if(!state.answered){$('feedback').innerHTML=q.two?`Two switches. Find the code for the dashed switch.`:`Find the code for the switch.`;$('nextBtn').hidden=true}
+  }
+  function explain(q){
+    const code=q.answer;
+    if(!q.two){
+      const parts=q.output.map((s,i)=>`${name(s)} came from position ${code[i]}`);
+      return `Answer <code>${code.join('')}</code>: ${parts.join(', ')}.`;
+    }
+    if(q.unknown==='A') return `Answer <code>${code.join('')}</code>. Undo the second switch (${q.B.join('')}) from the output to get the middle row shown above, then match the middle row to the input.`;
+    return `Answer <code>${code.join('')}</code>. Apply the first switch (${q.A.join('')}) to the input to get the middle row shown above, then match the output to the middle row.`;
+  }
+  function choose(i){
+    if(state.answered)return;
+    const q=state.q, ok=same(q.options[i],q.answer);
+    state.answeredCount++;
+    if(ok)state.correct++;else state.wrong++;
+    $('correct').textContent=state.correct;$('wrong').textContent=state.wrong;
+    if(state.mode==='timed'){newQuestion();return}
+    state.answered=true;
+    render();
+    const btns=$('opts').querySelectorAll('.opt');
+    btns.forEach((b,k)=>{b.disabled=true;if(same(q.options[k],q.answer))b.classList.add('right');else if(k===i)b.classList.add('wrong')});
+    $('feedback').innerHTML=(ok?'<span class="ok">Correct.</span> ':'<span class="no">Not quite.</span> ')+explain(q);
+    $('nextBtn').hidden=false;$('nextBtn').focus();
+  }
+  function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`}
+  function tick(){
+    const left=state.endAt-performance.now();
+    $('time').textContent=fmt(left);
+    $('time').classList.toggle('warn',left<60000);
+    if(left<=0)finish();
+  }
+  function finish(){
+    clearInterval(state.timer);state.timer=null;
+    $('game').hidden=true;$('results').hidden=false;
+    const total=state.correct+state.wrong;
+    $('r-correct').textContent=state.correct;$('r-wrong').textContent=state.wrong;
+    $('r-acc').textContent=total?Math.round(state.correct/total*100)+'%':'0%';
+    $('r-avg').textContent=total?(360/total).toFixed(1)+'s':'–';
+    let note='Aim for high accuracy first, then build speed. Many candidates answer 15 to 30 questions in 6 minutes.';
+    if(best===null||state.correct>best){best=state.correct;try{localStorage.setItem('switchBest',JSON.stringify(best))}catch(e){};note='New best score. '+note}
+    $('r-note').textContent=note;showBest();
+  }
+  function start(){
+    clearInterval(state.timer);state.timer=null;
+    state.correct=0;state.wrong=0;state.answeredCount=0;
+    $('correct').textContent=0;$('wrong').textContent=0;
+    $('results').hidden=true;$('game').hidden=false;
+    if(state.mode==='timed'){state.endAt=performance.now()+6*60*1000;tick();state.timer=setInterval(tick,250)}
+    else{$('time').textContent='Untimed';$('time').classList.remove('warn')}
+    newQuestion();
+  }
+  function setPressed(ids,on){ids.forEach(id=>$(id).setAttribute('aria-pressed',String(id===on)))}
+  $('m-practice').onclick=()=>{state.mode='practice';setPressed(['m-practice','m-timed'],'m-practice');start()};
+  $('m-timed').onclick=()=>{state.mode='timed';setPressed(['m-practice','m-timed'],'m-timed');start()};
+  $('d-1').onclick=()=>{state.diff='one';setPressed(['d-1','d-2','d-m'],'d-1');start()};
+  $('d-2').onclick=()=>{state.diff='two';setPressed(['d-1','d-2','d-m'],'d-2');start()};
+  $('d-m').onclick=()=>{state.diff='mixed';setPressed(['d-1','d-2','d-m'],'d-m');start()};
+  $('start').onclick=start;$('again').onclick=start;
+  $('nextBtn').onclick=newQuestion;
+  document.addEventListener('keydown',e=>{
+    if($('game').hidden)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key==='Enter'&&e.target.id!=='nextBtn')return;
+    if(['1','2','3','4'].includes(e.key)){choose(+e.key-1);e.preventDefault()}
+    else if(e.key==='Enter'&&state.answered&&state.mode==='practice'){e.preventDefault();newQuestion()}
+  });
+  showBest();start();
+})();
+</script>
+</body>
+</html>
